@@ -57,7 +57,7 @@ class Gui:
 
         self.settings_window = None
         self.settings_window_location = (None, None)
-        self.settings_window_size = (310, 480)
+        self.settings_window_size = (310, 550)
         self.popup_location = (None, None)
 # ---------------- END __init__ ----------------------------- #
 
@@ -119,7 +119,7 @@ class Gui:
 # ---------------- END main methods ------------------------- #
 
     def create_settings_window(self):
-        self.set_theme()
+        # self.set_theme()
 
         def TextLabel(text):
             return sg.Text(text + ':', justification='r', size=(15, 1))
@@ -161,9 +161,9 @@ class Gui:
                 [sg.Input(self.SETTINGS["button_text_color"], key='_button_text_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Button text color')],
                 [sg.Input(self.SETTINGS["input_color"], key='_input_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Input color')],
                 [sg.Input(self.SETTINGS["input_text_color"], key='_input_text_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Input text color')],
+                [sg.B("Set theme", tooltip="This will reload the main window, values will be lost."), sg.B("Clear theme")],
             ], title='Theme', relief=sg.RELIEF_SUNKEN)],
             [sg.B('Save', tooltip="Only saves the settings. To apply theme, please use 'Set theme' button"),
-             sg.B("Set theme", tooltip="This will reload the main window, values will be lost."),
              sg.B('Exit', key='_settings_exit_')]
         ]
 
@@ -216,16 +216,30 @@ class Gui:
         widget = tkinter.Tk()
         try:
             widget.winfo_rgb(color)
+            widget.destroy()
             return True
         except:
+            widget.destroy()
             return False
 
-    def update_theme_input(self, values):
-        input_value = self.settings_window["_out_text_color_"].Get()
-        print(input_value)
+    # def update_theme_input(self, values):
+    #     input_value = self.settings_window["_out_text_color_"].Get()
+    #     print(input_value)
             # self.settings_window["_out_text_color_"].update(value=sg.theme_input_text_color())
+    def set_default_theme(self):
+        s = self.SETTINGS
+        sg.theme(s["theme"])
 
-    def set_theme(self, reset=False):
+    def clear_theme(self):
+        s = self.SETTINGS
+
+        for key, color in s.items():
+            if "color" in key:
+                s[key] = ""
+                self.settings_window[self.SETTING_TO_ELEMENT_KEYS[key]].update(value="")
+        sg.theme(s['theme'])
+
+    def set_theme(self, clear=False):
         s = self.SETTINGS
         sg.theme(s['theme'])
 
@@ -238,13 +252,12 @@ class Gui:
         input_color = sg.theme_input_background_color
         input_text_color = sg.theme_input_text_color
 
-        if reset:
-            s["bkgrnd_color"] = ""
-            s["button_text_color"] = ""
-            s["button_color"] = ""
-            s["input_text_color"] = ""
-            s["input_color"] = ""
-            self.save_settings(self.values)
+        for key, color in s.items():
+            if "color" in key:
+                if not self.color_validator(color) and color != "":
+                    s[key] = ""
+                    print(f"'{key}' - '{color}' is not valid color. Set to blank.")
+
 
         color = s["bkgrnd_color"] if s["bkgrnd_color"] != "" else (
                 bkgrnd_color() if s["bkgrnd_color"] == bkgrnd_color() else None)

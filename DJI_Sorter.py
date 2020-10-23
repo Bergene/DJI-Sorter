@@ -29,7 +29,7 @@ def main():
                 if event in ("Properties", "Settings"):
                     if not gui.settings_window:
                         gui.create_settings_window()
-                        gui.update_theme_input(values)
+                        # gui.update_theme_input(values)
 
                 elif event == "Show Files":
                     formats = gui.get_chkbox_val(values)  # Gets a list of formats depending on which checkboxes are checked
@@ -75,23 +75,48 @@ def main():
 
         elif window == gui.settings_window:
             gui.set_win_pos()
-            if event == sg.WIN_CLOSED or event in ('Exit', '_settings_exit_'):
-                window.close()
-                gui.settings_window = None
+            if __name__ == '__main__':
+                if event == sg.WIN_CLOSED or event in ('Exit', '_settings_exit_'):
+                    window.close()
+                    gui.settings_window = None
 
-            elif event == 'Save':
-                gui.save_settings(values)
-                window.close()
-                gui.settings_window = None
-                fh.files_list = None  # This is to prevent "Move" action from using an outdated files list after f.ex 'Recurse' has been turned on
+                elif event == 'Save':
+                    gui.save_settings(values)
+                    window.close()
+                    gui.settings_window = None
+                    fh.files_list = None  # This is to prevent "Move" action from using an outdated files list after f.ex 'Recurse' has been turned on
 
-            elif event == "Set theme":
-                gui.save_settings(values)
-                gui.main_window.close()
-                gui.settings_window.close()
-                gui.create_main_window()
-                gui.create_settings_window()
-                fh.files_list = None  # This is to prevent "Move" action from using an outdated files list after f.ex 'Recurse' has been turned on
+                elif event == "Set theme":
+                    gui.save_settings(values)
+                    gui.set_default_theme()
+                    gui.main_window.close()
+                    gui.settings_window.close()
+                    gui.create_main_window()
+                    gui.create_settings_window()
+                    fh.files_list = None  # This is to prevent "Move" action from using an outdated files list after f.ex 'Recurse' has been turned on
+
+                elif event == "Clear theme":
+                    gui.clear_theme()
+                    gui.save_settings(values)
+                    print("Settings")
+                    for key, value in s.items():
+                        print(f"Key: {key} - Value: {value}")
+
+                    gui.main_window.close()
+                    gui.settings_window.close()
+
+                    print("Settings")
+                    for key, value in s.items():
+                        print(f"Key: {key} - Value: {value}")
+
+                    gui.create_main_window()
+                    gui.create_settings_window()
+
+                    print("Settings")
+                    for key, value in s.items():
+                        print(f"Key: {key} - Value: {value}")
+
+                    fh.files_list = None  # This is to prevent "Move" action from using an outdated files list after f.ex 'Recurse' has been turned on
 
         print("\nEnd of loop\n")
 
