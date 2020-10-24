@@ -57,7 +57,7 @@ class Gui:
 
         self.settings_window = None
         self.settings_window_location = (None, None)
-        self.settings_window_size = (310, 550)
+        self.settings_window_size = (320, 550)
         self.popup_location = (None, None)
 # ---------------- END __init__ ----------------------------- #
 
@@ -66,7 +66,12 @@ class Gui:
         def FillerButton(text, size):
             return sg.Button(text, size, visible=True, border_width=0, button_color=(sg.theme_background_color(),sg.theme_background_color()))
 
-        self.set_theme()
+        # self.set_theme()
+        if self.SETTINGS is not None:
+            self.set_theme()
+            ML_color = self.SETTINGS["ML_color"]
+        else:
+            ML_color = None
 
 
         # ------ Menu Definition ------ #
@@ -85,17 +90,15 @@ class Gui:
                     sg.FolderBrowse(key="_browse2_")],
                 ], title="File Destinations", relief=sg.RELIEF_SUNKEN, pad=((0, 0), (20, 0)))],
             [sg.Frame(layout=[
-                [sg.Checkbox(" Add Author?", key="_AUTHOR_CB_", enable_events=True),
-                    sg.Button("Bleep", size=(6, 1), visible=True, border_width=0, button_color=(sg.theme_background_color(),sg.theme_background_color()))],
-                [sg.Button("Bleep", size=(1, 1), visible=True, border_width=0, button_color=(sg.theme_background_color(),sg.theme_background_color())),
-                    sg.Text("Author:"), sg.In(key="_author_in_", disabled=True, size=(17, 1))]
-                ], title="Author", relief=sg.RELIEF_SUNKEN),
+                [sg.Checkbox(" Add Author?", key="_AUTHOR_CB_", enable_events=True), sg.Checkbox('Recurse', key="_SUB_CB_", enable_events=True)],
+                [sg.Text("Author:"), sg.In(key="_author_in_", disabled=True, size=(17, 1))]
+                ], title="Options", relief=sg.RELIEF_SUNKEN),
             sg.Frame(layout=[
                 [sg.Checkbox('JPG ', key="_JPG_CB_", default=True, enable_events=True),
                     sg.Checkbox('DNG', key="_DNG_CB_", default=True, enable_events=True)],
                 [sg.Checkbox('MOV', key="_MOV_CB_", default=True, enable_events=True),
-                    sg.Checkbox('Recurse', key="_SUB_CB_", enable_events=True)],
-                ], title="Options", relief=sg.RELIEF_SUNKEN, pad=((60, 0), (0, 0)))
+                    sg.Checkbox('CR2', key="_CR2_CB_", default=True, enable_events=True)],
+                ], title="Formats", relief=sg.RELIEF_SUNKEN, pad=((60, 0), (0, 0)))
             ],
             [sg.Column([
                 [],
@@ -104,7 +107,7 @@ class Gui:
                 ], title="", relief=sg.RELIEF_SUNKEN)]
             ])
             ],
-    [sg.Multiline(key="_ML_", background_color=self.SETTINGS["ML_color"], autoscroll=True, size=(80, 17), pad=((0, 0), (0, 20)))]
+    [sg.Multiline(key="_ML_", background_color=ML_color, autoscroll=True, size=(80, 17), pad=((0, 0), (0, 20)))]
         ]
         self.main_window = sg.Window('Main Application', layout, element_justification='center', finalize=True, location=self.main_window_location)
         return self.main_window
@@ -112,18 +115,13 @@ class Gui:
 
     def get_chkbox_val(self, values):
         formats = list()
-        for ext, value in {"JPG": values['_JPG_CB_'], "DNG": values['_DNG_CB_'], "MOV": values['_MOV_CB_']}.items():
+        for ext, value in {"JPG": values['_JPG_CB_'], "DNG": values['_DNG_CB_'], "MOV": values['_MOV_CB_'], "CR2": values['_CR2_CB_']}.items():
             if value is True:
                 formats.append(ext)
         return formats
 # ---------------- END main methods ------------------------- #
 
     def create_settings_window(self):
-        # self.set_theme()
-
-        def TextLabel(text):
-            return sg.Text(text + ':', justification='r', size=(15, 1))
-
         # ------ Layout Definition----- #
         layout = [
             [
@@ -163,11 +161,11 @@ class Gui:
                 [sg.Input(self.SETTINGS["input_text_color"], key='_input_text_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Input text color')],
                 [sg.B("Set theme", tooltip="This will reload the main window, values will be lost."), sg.B("Clear theme")],
             ], title='Theme', relief=sg.RELIEF_SUNKEN)],
-            [sg.B('Save', tooltip="Only saves the settings. To apply theme, please use 'Set theme' button"),
+            [sg.B('Save', tooltip="Only saves the settings. To apply theme, please use 'Set theme' button"), sg.B("Test"),
              sg.B('Exit', key='_settings_exit_')]
         ]
 
-        window = sg.Window('Settings', layout, modal=True, keep_on_top=True, finalize=True,
+        window = sg.Window('Settings', layout, modal=True, keep_on_top=True, finalize=True, return_keyboard_events=True,
                                         location=self.settings_window_location, size=self.settings_window_size)
 
         for key in self.SETTING_TO_ELEMENT_KEYS:  # update window with the values read from settings file
@@ -206,11 +204,20 @@ class Gui:
                 string = "Reloading"
             else:
                 string = "Settings saved"
+            x = self.main_window_center[0]
+            y = self.main_window_center[1]
+            if x is not None and y is not None:
+                coords = (x-50, y+100)
+            else:
+                coords = (x, y)
+
             sg.popup_no_buttons(string, keep_on_top=True,
                                                   auto_close=True,
                                                   auto_close_duration=1,
                                                   non_blocking=False,
-                                                  no_titlebar=True)
+                                                  no_titlebar=True,
+                                                  location=coords)
+
 # ---------------- END settings methods --------------------- #
     def color_validator(self, color):
         widget = tkinter.Tk()
@@ -222,17 +229,12 @@ class Gui:
             widget.destroy()
             return False
 
-    # def update_theme_input(self, values):
-    #     input_value = self.settings_window["_out_text_color_"].Get()
-    #     print(input_value)
-            # self.settings_window["_out_text_color_"].update(value=sg.theme_input_text_color())
     def set_default_theme(self):
         s = self.SETTINGS
         sg.theme(s["theme"])
 
     def clear_theme(self):
         s = self.SETTINGS
-
         for key, color in s.items():
             if "color" in key:
                 s[key] = ""
@@ -243,47 +245,31 @@ class Gui:
         s = self.SETTINGS
         sg.theme(s['theme'])
 
-        bkgrnd_color = sg.theme_background_color
-        button_color = sg.theme_button_color
-        elem_color = sg.theme_element_background_color
-        elem_text_color = sg.theme_element_text_color
-        text_color = sg.theme_text_color
-        text_label_color = sg.theme_text_element_background_color
-        input_color = sg.theme_input_background_color
-        input_text_color = sg.theme_input_text_color
-
         for key, color in s.items():
             if "color" in key:
                 if not self.color_validator(color) and color != "":
                     s[key] = ""
                     print(f"'{key}' - '{color}' is not valid color. Set to blank.")
+        print(sg.theme_background_color())
+        color = s["bkgrnd_color"] if s["bkgrnd_color"] != "" else sg.theme_background_color()
+        sg.theme_background_color(color=color)
+        sg.theme_element_background_color(color=color)
+        sg.theme_text_element_background_color(color=color)
+        print(sg.theme_background_color())
 
+        b_text_color = s["button_text_color"] if s["button_text_color"] != "" else sg.theme_button_color()[0]
+        color = s["button_color"] if s["button_color"] != "" else sg.theme_button_color()[1]
+        sg.theme_button_color(color=(b_text_color, color))
 
-        color = s["bkgrnd_color"] if s["bkgrnd_color"] != "" else (
-                bkgrnd_color() if s["bkgrnd_color"] == bkgrnd_color() else None)
-        bkgrnd_color(color=color)
-        elem_color(color=color)
-        text_label_color(color=color)
+        color = s["text_color"] if s["text_color"] != "" else sg.theme_text_color()
+        sg.theme_text_color(color=color)
+        sg.theme_element_text_color(color=color)
 
-        b_text_color = (s["button_text_color"]) if s["button_text_color"] != "" else (
-                button_color()[0] if s["button_text_color"] == button_color()[0] else None)
+        color = s["input_text_color"] if s["input_text_color"] != "" else sg.theme_input_text_color()
+        sg.theme_input_text_color(color=color)
 
-        color = (s["button_color"]) if s["button_color"] != "" else (
-                button_color()[1] if s["button_color"] == button_color()[1] else None)
-        button_color(color=(b_text_color, color))
-
-        color = (s["text_color"]) if s["text_color"] != "" else (
-                text_color()[1] if s["text_color"] == text_color()[1] else None)
-        text_color(color=color)
-        elem_text_color(color=color)
-
-        color = (s["input_text_color"]) if s["input_text_color"] != "" else (
-                input_text_color()[1] if s["input_text_color"] == input_text_color()[1] else None)
-        input_text_color(color=color)
-
-        color = (s["input_color"]) if s["input_color"] != "" else (
-                input_color()[1] if s["input_color"] == input_color()[1] else None)
-        input_color(color=color)
+        color = s["input_color"] if s["input_color"] != "" else sg.theme_input_background_color()
+        sg.theme_input_background_color(color=color)
 
 
 

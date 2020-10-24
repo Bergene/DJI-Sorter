@@ -19,6 +19,7 @@ class FileHandler:
         if path_from is None or formats is None:  # If either variable is 'None' it will return the same
             return None
         else:
+            print(formats)
             self.path_from = path_from
             results = os.listdir(path_from)  # Gets list of files and subdirs
             self.files_list = list()  # Creates empty list in 'files_list' variable

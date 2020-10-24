@@ -7,6 +7,10 @@ from pprint import pprint
 def main():
     gui = Gui()
     fh = FileHandler()
+
+    # gui.create_main_window()  # Must be here for popup coordinates
+    # gui.set_win_pos()  # Must be here for popup coordinates
+    # gui.main_window.close()  # Must be here for popup coordinates
     gui.load_settings()
     gui.create_main_window()
     while True:  # Event Loop
@@ -56,13 +60,13 @@ def main():
                                       output_silent=(not s['AuthorOutput']))
 
                 elif event == "Test":
-                    gui.cprint(f"Path to: {values['_output_']}\n ", text_color="red")
-                    gui.cprint("Values", text_color="red")
+                    print(f"Path to: {values['_output_']}\n ")
+                    print("\n\nValues\n")
                     for key, value in values.items():
-                        gui.cprint(f"Key: {key} - Value: {value}")
-                    gui.cprint("Settings", text_color="red")
+                        print(f"Key: {key} - Value: {value}")
+                    print("\n\nSettings\n")
                     for key, value in s.items():
-                        gui.cprint(f"Key: {key} - Value: {value}")
+                        print(f"Key: {key} - Value: {value}")
                 elif event == "Clear":
                     window["_ML_"].update(value="")
 
@@ -76,7 +80,7 @@ def main():
         elif window == gui.settings_window:
             gui.set_win_pos()
             if __name__ == '__main__':
-                if event == sg.WIN_CLOSED or event in ('Exit', '_settings_exit_'):
+                if event == sg.WIN_CLOSED or event in ('Exit', '_settings_exit_', None, 'Escape:27'):
                     window.close()
                     gui.settings_window = None
 
@@ -97,24 +101,35 @@ def main():
 
                 elif event == "Clear theme":
                     gui.clear_theme()
+                    event, values = gui.settings_window.read(timeout=1)
                     gui.save_settings(values)
-                    print("Settings")
+                    print("\n\nSettings\n")
                     for key, value in s.items():
                         print(f"Key: {key} - Value: {value}")
 
                     gui.main_window.close()
                     gui.settings_window.close()
 
-                    print("Settings")
+                    print("\n\nSettings\n")
                     for key, value in s.items():
                         print(f"Key: {key} - Value: {value}")
 
                     gui.create_main_window()
                     gui.create_settings_window()
 
-                    print("Settings")
+                    print("\n\nSettings\n")
                     for key, value in s.items():
                         print(f"Key: {key} - Value: {value}")
+
+                elif event == "Test":
+                    print("\n\nValues\n")
+                    for key, value in values.items():
+                        print(f"Key: {key} - Value: {value}")
+                    print("\n\nSettings\n")
+                    for key, value in s.items():
+                        print(f"Key: {key} - Value: {value}")
+
+
 
                     fh.files_list = None  # This is to prevent "Move" action from using an outdated files list after f.ex 'Recurse' has been turned on
 
