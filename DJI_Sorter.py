@@ -2,6 +2,7 @@ from core.file_handler import FileHandler
 from core.gui import Gui
 import PySimpleGUI as sg
 from pprint import pprint
+import os
 
 
 def main():
@@ -23,12 +24,21 @@ def main():
         print("_"*50)
         print(f"Window: {'Main_window' if window == gui.main_window else 'Settings_window'}")
         print(f"Event: {event}")
+        print(os.getcwd())
+        print(os.listdir(os.getcwd()))
 
         if window == gui.main_window:
             if window == sg.WIN_CLOSED or event in (None, "_main_exit_"):  # if all windows were closed
                 break
             else:
                 gui.set_win_pos()  # Error will occur if trying to set coordinates on a closed window, hence this will only be called if a window is not closed.
+
+                if not FileHandler.is_admin:
+                    gui.cprint("\nPlease start the software as Admin to continue.\n")
+                    continue
+                if not FileHandler.is_exif:
+                    gui.cprint("\n'exiftool.exe' not found in root folder.'.\n")
+                    continue
 
                 if event in ("Properties", "Settings"):
                     if not gui.settings_window:
@@ -38,6 +48,7 @@ def main():
                 elif event == "Show Files":
                     formats = gui.get_chkbox_val(values)  # Gets a list of formats depending on which checkboxes are checked
                     fh.get_files_(path=values["_input_"], formats=formats, recursive=values['_SUB_CB_'], settings=s)
+                    gui.cprint("---------------------------- END ------------------------------")
 
                 elif event == "Move":
                     if fh.files_list is None:
@@ -47,7 +58,7 @@ def main():
                     fh.move(path_to=values["_output_"],
                             copy=s['C_Radio'],
                             output_silent=(not s['Moved']),
-                            transfer_dialog=(not s['Silent']),
+                            transfer_dialog=(s['Silent']),
                             testrun=s['Testrun'])
                     if not s['Testrun'] and values['_AUTHOR_CB_']:
                         """This should not run if it is a test run.
@@ -58,6 +69,7 @@ def main():
                         fh.add_author(duplicate=s['Duplicate'],
                                       author=values["_author_in_"],
                                       output_silent=(not s['AuthorOutput']))
+                    gui.cprint("---------------------------- END ------------------------------")
 
                 elif event == "Test":
                     print(f"Path to: {values['_output_']}\n ")

@@ -57,7 +57,7 @@ class Gui:
 
         self.settings_window = None
         self.settings_window_location = (None, None)
-        self.settings_window_size = (320, 550)
+        self.settings_window_size = (320, 310)
         self.popup_location = (None, None)
 # ---------------- END __init__ ----------------------------- #
 
@@ -84,9 +84,9 @@ class Gui:
         layout = [
             [sg.Menu(menu_def),
             sg.Frame(layout=[
-                [sg.Text("Input:   "), sg.In(r"D:\My_Share\Pictures", key="_input_", enable_events=True),
+                [sg.Text("Input:   "), sg.In(r"", key="_input_", enable_events=True),
                     sg.FolderBrowse(key="_browse1_", enable_events=True)],
-                [sg.Text("Output:"), sg.In(r"D:\My_Share\Pictures\asdfadsf", key="_output_"),
+                [sg.Text("Output:"), sg.In(r"", key="_output_"),
                     sg.FolderBrowse(key="_browse2_")],
                 ], title="File Destinations", relief=sg.RELIEF_SUNKEN, pad=((0, 0), (20, 0)))],
             [sg.Frame(layout=[
@@ -103,7 +103,7 @@ class Gui:
             [sg.Column([
                 [],
                 [sg.Frame(layout=[
-                    [sg.B('Show Files', size=(8, 1)), sg.B('Move', size=(8, 1)), sg.B("Test", size=(8, 1)), sg.B("Clear", size=(8, 1))]
+                    [sg.B('Show Files', size=(8, 1)), sg.B('Move', size=(8, 1)), sg.B("Test", size=(8, 1), visible=False), sg.B("Clear", size=(8, 1))]
                 ], title="", relief=sg.RELIEF_SUNKEN)]
             ])
             ],
@@ -126,22 +126,21 @@ class Gui:
         layout = [
             [
                 sg.Frame(layout=[
-                    [sg.Checkbox('Files', key="_FILES_CB_", size=(5, 1), default=False),
-                     sg.Checkbox('Sorted', key="_SORTED_CB_", size=(5, 1), default=False)],
-                    [sg.Checkbox('Dates', key="_DATES_CB_", size=(5, 1), default=False),
-                     sg.Checkbox('Moved', key="_MOVE_CB_", size=(5, 1), default=True)],
-                ], title='What to show', relief=sg.RELIEF_SUNKEN,
-                    tooltip='These flags will show more information about the file handling proccess'),
+                    [sg.Checkbox('Files', key="_FILES_CB_", tooltip="List files found.", size=(5, 1), default=False),
+                     sg.Checkbox('Sorted', key="_SORTED_CB_", tooltip="List files after sorting.", size=(5, 1), default=False)],
+                    [sg.Checkbox('Dates', key="_DATES_CB_", tooltip="List files by date.", size=(5, 1), default=False),
+                     sg.Checkbox('Moved', key="_MOVE_CB_", tooltip="List files when moved/copied.", size=(5, 1), default=True)],
+                ], title='What to show', relief=sg.RELIEF_SUNKEN),
                 sg.Frame(layout=[
                     [sg.Checkbox("Duplicates", key="_DUPLI_CB_",
-                                 tooltip="Having this checked make a copy of the original (moved) with the author.")],
-                     [sg.Checkbox("Show output", key="_OUT_AUTHOR_")]
+                                 tooltip="Having this checked make a copy of the original with the author.")],
+                     [sg.Checkbox("Show output", key="_OUT_AUTHOR_", tooltip="Lists files when edited.")]
                 ], title='Author Options', relief=sg.RELIEF_SUNKEN, size=(5, 5))
             ],
             [
                 sg.Frame(layout=[
                     [sg.Checkbox("Testrun", key="_TEST_CB_", size=(13, 1), default=True,
-                                 tooltip="Having checked this the files will not be moved."),
+                                 tooltip="No files will be moved or copied if this is checked."),
                      sg.Radio("Move", key="_r_move_", group_id="RADIO1"),
                      sg.Radio("Copy ", key="_r_copy_", group_id="RADIO1")],
                     [sg.Checkbox("Silent transfer", key="_SILENT_CB_", size=(13, 1), default=False,
@@ -151,17 +150,17 @@ class Gui:
             ],
             [sg.Frame(layout=[
                 [sg.Combo(sg.theme_list(), key='_theme_', pad=((8, 0), (0, 0))), sg.Text('Theme')],
-                [sg.Input(self.SETTINGS["out_text_color"], key='_out_text_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Output text color')],
-                [sg.Input(self.SETTINGS["ML_color"], key='_ML_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Multiline color')],
-                [sg.Input(self.SETTINGS["bkgrnd_color"], key='_bkgrnd_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Background color')],
-                [sg.Input(self.SETTINGS["text_color"], key='_text_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Text color')],
-                [sg.Input(self.SETTINGS["button_color"], key='_button_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Button color')],
-                [sg.Input(self.SETTINGS["button_text_color"], key='_button_text_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Button text color')],
-                [sg.Input(self.SETTINGS["input_color"], key='_input_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Input color')],
-                [sg.Input(self.SETTINGS["input_text_color"], key='_input_text_color_', pad=((8, 0), (0, 0)), size=(22, 1)), sg.Text('Input text color')],
-                [sg.B("Set theme", tooltip="This will reload the main window, values will be lost."), sg.B("Clear theme")],
+                [sg.Input(self.SETTINGS["out_text_color"], key='_out_text_color_', pad=((8, 0), (0, 0)), size=(22, 1), visible=False), sg.Text('Output text color', visible=False)],
+                [sg.Input(self.SETTINGS["ML_color"], key='_ML_color_', pad=((8, 0), (0, 0)), size=(22, 1), visible=False), sg.Text('Multiline color', visible=False)],
+                [sg.Input(self.SETTINGS["bkgrnd_color"], key='_bkgrnd_color_', pad=((8, 0), (0, 0)), size=(22, 1), visible=False), sg.Text('Background color', visible=False)],
+                [sg.Input(self.SETTINGS["text_color"], key='_text_color_', pad=((8, 0), (0, 0)), size=(22, 1), visible=False), sg.Text('Text color', visible=False)],
+                [sg.Input(self.SETTINGS["button_color"], key='_button_color_', pad=((8, 0), (0, 0)), size=(22, 1), visible=False), sg.Text('Button color', visible=False)],
+                [sg.Input(self.SETTINGS["button_text_color"], key='_button_text_color_', pad=((8, 0), (0, 0)), size=(22, 1), visible=False), sg.Text('Button text color', visible=False)],
+                [sg.Input(self.SETTINGS["input_color"], key='_input_color_', pad=((8, 0), (0, 0)), size=(22, 1), visible=False), sg.Text('Input color', visible=False)],
+                [sg.Input(self.SETTINGS["input_text_color"], key='_input_text_color_', pad=((8, 0), (0, 0)), size=(22, 1), visible=False), sg.Text('Input text color', visible=False)],
+                [sg.B("Set theme", tooltip="This will reload the main window, values will be lost."), sg.B("Clear theme", visible=False)],
             ], title='Theme', relief=sg.RELIEF_SUNKEN)],
-            [sg.B('Save', tooltip="Only saves the settings. To apply theme, please use 'Set theme' button"), sg.B("Test"),
+            [sg.B('Save', tooltip="Only saves the settings. To apply theme, please use 'Set theme' button"), sg.B("Test", visible=False),
              sg.B('Exit', key='_settings_exit_')]
         ]
 

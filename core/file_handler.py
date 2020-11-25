@@ -72,7 +72,9 @@ class FileHandler:
 
     def move(self, path_to=None, copy=True, output_silent=True, transfer_dialog=False, testrun=False):
         if path_to is not None:
-            self.is_dir(path_to, mkdir=True, chk_ptrn=True)
+            if not self.is_dir(directory=path_to, mkdir=True, chk_ptrn=True):
+                self.cp("Bad path")
+                return
             self.path_to = path_to
             new_path_files_list = list()  # Creates empty list to append new file path (used when adding author)
             if not output_silent and self.cp is not None:
@@ -150,6 +152,10 @@ class FileHandler:
         """'cp' is gui.cprint method'."""
         if settings is None:
             settings = {"Files": True, "Dates": True, "Sorted": True, }
+        if not self.is_dir(directory=path):
+            self.cp("Bad path")
+            return
+
         self.get_files(path_from=path, formats=(formats), recursive=recursive)  # Creates a list of files from 'fh.path_to'
 
         if settings["Files"] and self.cp is not None:
