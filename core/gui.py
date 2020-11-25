@@ -15,7 +15,7 @@ class Gui:
                                  'Duplicate': False,
                                  'AuthorOutput': True,
                                  'Silent': False,
-                                 'Testrun': True,
+                                 'Testrun': False,
                                  'C_Radio': True,
                                  'M_Radio': None,
                                  'theme': sg.theme('Reddit'),
@@ -75,9 +75,7 @@ class Gui:
 
 
         # ------ Menu Definition ------ #
-        menu_def = [['&File', ['&Properties', 'Exit']],
-                    ['Edit', ['Paste', ['Special', 'Normal', ], 'Undo'], ],
-                    ['Help', 'About...'], ]
+        menu_def = [['&File', ['&Properties', 'Exit']]]
         # ----------------------------- #
 
         # ------ Layout Definition----- #
@@ -139,7 +137,7 @@ class Gui:
             ],
             [
                 sg.Frame(layout=[
-                    [sg.Checkbox("Testrun", key="_TEST_CB_", size=(13, 1), default=True,
+                    [sg.Checkbox("Testrun", key="_TEST_CB_", size=(13, 1),
                                  tooltip="No files will be moved or copied if this is checked."),
                      sg.Radio("Move", key="_r_move_", group_id="RADIO1"),
                      sg.Radio("Copy ", key="_r_copy_", group_id="RADIO1")],
@@ -160,7 +158,7 @@ class Gui:
                 [sg.Input(self.SETTINGS["input_text_color"], key='_input_text_color_', pad=((8, 0), (0, 0)), size=(22, 1), visible=False), sg.Text('Input text color', visible=False)],
                 [sg.B("Set theme", tooltip="This will reload the main window, values will be lost."), sg.B("Clear theme", visible=False)],
             ], title='Theme', relief=sg.RELIEF_SUNKEN)],
-            [sg.B('Save', tooltip="Only saves the settings. To apply theme, please use 'Set theme' button"), sg.B("Test", visible=False),
+            [sg.B('Save', pad=((12, 0), (0, 0)), tooltip="Only saves the settings. To apply theme, please use 'Set theme' button"), sg.B("Test", visible=False),
              sg.B('Exit', key='_settings_exit_')]
         ]
 
